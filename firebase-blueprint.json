@@ -1,0 +1,101 @@
+{
+  "entities": {
+    "User": {
+      "title": "User",
+      "description": "User profile information",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "name": { "type": "string" },
+        "email": { "type": "string", "format": "email" },
+        "phone": { "type": "string" }
+      },
+      "required": ["id", "name", "email"]
+    },
+    "Case": {
+      "title": "Case",
+      "description": "Legal case details",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "userId": { "type": "string" },
+        "fileNumber": { "type": "string" },
+        "caseTitle": { "type": "string" },
+        "clientName": { "type": "string" },
+        "clientId": { "type": "string" },
+        "status": { "type": "string", "enum": ["Open", "In Progress", "Closed"] },
+        "caseDate": { "type": "string", "format": "date" },
+        "courtDate": { "type": "string", "format": "date" },
+        "caseType": { "type": "string" },
+        "description": { "type": "string" },
+        "files": { "type": "array" },
+        "history": { "type": "array" },
+        "parties": { "type": "array" },
+        "notes": { "type": "array" }
+      },
+      "required": ["userId", "fileNumber", "caseTitle", "clientId", "status", "caseDate", "courtDate", "caseType"]
+    },
+    "Task": {
+      "title": "Task",
+      "description": "Task associated with a case or general",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "userId": { "type": "string" },
+        "caseId": { "type": "string" },
+        "description": { "type": "string" },
+        "dueDate": { "type": "string", "format": "date" },
+        "isDone": { "type": "boolean" }
+      },
+      "required": ["id", "userId", "description", "dueDate", "isDone"]
+    },
+    "Client": {
+      "title": "Client",
+      "description": "Client contact information",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "userId": { "type": "string" },
+        "name": { "type": "string" },
+        "phone": { "type": "string" },
+        "email": { "type": "string", "format": "email" }
+      },
+      "required": ["id", "userId", "name", "phone"]
+    },
+    "Log": {
+      "title": "Log",
+      "description": "Audit logs for security events",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string" },
+        "action": { "type": "string" },
+        "details": { "type": "object" },
+        "timestamp": { "type": "string", "format": "date-time" },
+        "userAgent": { "type": "string" }
+      },
+      "required": ["userId", "action", "timestamp"]
+    }
+  },
+  "firestore": {
+    "/users/{userId}": {
+      "schema": "User",
+      "description": "User profile document"
+    },
+    "/users/{userId}/cases/{caseId}": {
+      "schema": "Case",
+      "description": "Collection of cases for a specific user"
+    },
+    "/users/{userId}/tasks/{taskId}": {
+      "schema": "Task",
+      "description": "Collection of tasks for a specific user"
+    },
+    "/users/{userId}/clients/{clientId}": {
+      "schema": "Client",
+      "description": "Collection of clients for a specific user"
+    },
+    "/logs/{logId}": {
+      "schema": "Log",
+      "description": "System-wide audit logs"
+    }
+  }
+}

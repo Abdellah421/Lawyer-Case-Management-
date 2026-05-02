@@ -1,0 +1,38 @@
+@import "tailwindcss";
+@custom-variant dark (&:where(.dark, .dark *));
+
+@theme {
+  --color-primary: #2F81F7;
+  --color-secondary: #43A047;
+  --color-light-bg: #F5F5F5;
+  --color-light-card: #FFFFFF;
+  --color-light-text: #212121;
+  --color-light-subtle: #757575;
+  --color-dark-bg: #1A202C;
+  --color-dark-card: #2D3748;
+  --color-dark-text: #E2E8F0;
+  --color-dark-subtle: #94A3B8;
+  --color-dark-border: #475569;
+}
+
+body {
+  @apply bg-light-bg text-light-text dark:bg-dark-bg dark:text-dark-text transition-colors duration-200;
+  /* Prevent content from going under the status bar */
+  padding-top: env(safe-area-inset-top);
+  padding-left: env(safe-area-inset-left);
+  padding-right: env(safe-area-inset-right);
+}
+
+/* Safe area utility classes for use in components */
+.safe-bottom {
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
+.pb-safe {
+  padding-bottom: max(1rem, env(safe-area-inset-bottom));
+}
+
+.mb-nav {
+  /* Height of bottom nav (4rem) + home indicator safe area */
+  margin-bottom: calc(4rem + env(safe-area-inset-bottom));
+}

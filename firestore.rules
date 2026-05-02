@@ -1,0 +1,131 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Default deny
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // ===============================================================
+    // Helper Functions
+    // ===============================================================
+
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return isSignedIn() && request.auth.uid == userId;
+    }
+
+    function isAdmin() {
+      return isSignedIn() && (
+        (exists(/databases/$(database)/documents/users/$(request.auth.uid)) && 
+         get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin') ||
+        (request.auth.token.email == "benkhalouqabdellah@gmail.com" && request.auth.token.email_verified == true)
+      );
+    }
+
+    function isValidId(id) {
+      return id is string && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    function isValidDateString(dateStr) {
+      return dateStr is string && dateStr.matches("^\\d{4}-\\d{2}-\\d{2}$");
+    }
+
+    function incoming() {
+      return request.resource.data;
+    }
+
+    // ===============================================================
+    // Domain Validators
+    // ===============================================================
+
+    function isValidUser(data) {
+      return data.keys().hasAll(['id', 'name', 'email']) &&
+             data.keys().hasOnly(['id', 'name', 'email', 'phone', 'role']) &&
+             data.id == request.auth.uid &&
+             data.name is string && data.name.size() >= 1 && data.name.size() <= 100 &&
+             data.email is string && data.email.matches("^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$") &&
+             (!('phone' in data) || (data.phone is string && data.phone.size() <= 20)) &&
+             (!('role' in data) || data.role in ['user', 'admin']);
+    }
+
+    function isValidCase(data, userId) {
+      return data.keys().hasAll(['userId', 'fileNumber', 'caseTitle', 'clientName', 'clientId', 'status', 'caseDate', 'courtDate', 'caseType']) &&
+             data.keys().hasOnly(['id', 'userId', 'fileNumber', 'caseTitle', 'clientName', 'clientId', 'status', 'caseDate', 'courtDate', 'caseType', 'description', 'files', 'history', 'parties', 'notes', 'createdAt']) &&
+             data.userId == userId &&
+             data.fileNumber is string && data.fileNumber.size() >= 0 && data.fileNumber.size() <= 50 &&
+             data.caseTitle is string && data.caseTitle.size() >= 0 && data.caseTitle.size() <= 200 &&
+             data.status in ['Open', 'In Progress', 'Closed'] &&
+             isValidDateString(data.caseDate) &&
+             isValidDateString(data.courtDate);
+    }
+
+    function isValidTask(data, userId) {
+      return data.keys().hasAll(['userId', 'description', 'dueDate', 'isDone']) &&
+             data.keys().hasOnly(['id', 'userId', 'caseId', 'description', 'dueDate', 'isDone']) &&
+             data.userId == userId &&
+             data.description is string && data.description.size() >= 1 && data.description.size() <= 1000 &&
+             isValidDateString(data.dueDate) &&
+             data.isDone is bool;
+    }
+
+    function isValidClient(data, userId) {
+      return data.keys().hasAll(['userId', 'name', 'phone']) &&
+             data.keys().hasOnly(['id', 'userId', 'name', 'phone', 'email']) &&
+             data.userId == userId &&
+             data.name is string && data.name.size() >= 1 && data.name.size() <= 100 &&
+             data.phone is string && data.phone.size() >= 1 && data.phone.size() <= 20 &&
+             (!('email' in data) || (data.email is string && data.email.matches("^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$")));
+    }
+
+    function isValidLog(data) {
+      return data.keys().hasAll(['userId', 'action', 'details', 'timestamp', 'userAgent']) &&
+             data.keys().hasOnly(['userId', 'action', 'details', 'timestamp', 'userAgent']) &&
+             data.userId is string &&
+             data.action is string &&
+             data.details is map &&
+             data.timestamp == request.time &&
+             data.userAgent is string;
+    }
+
+    // ===============================================================
+    // Paths
+    // ===============================================================
+
+    match /users/{userId} {
+      allow read: if isOwner(userId) || isAdmin();
+      allow create: if isOwner(userId) && isValidUser(incoming());
+      allow update: if isOwner(userId) && isValidUser(incoming());
+
+      match /cases/{caseId} {
+        allow read: if isOwner(userId) || isAdmin();
+        allow create: if isOwner(userId) && isValidCase(incoming(), userId);
+        allow update: if isOwner(userId) && isValidCase(incoming(), userId);
+        allow delete: if isOwner(userId) || isAdmin();
+      }
+
+      match /tasks/{taskId} {
+        allow read: if isOwner(userId) || isAdmin();
+        allow create: if isOwner(userId) && isValidTask(incoming(), userId);
+        allow update: if isOwner(userId) && isValidTask(incoming(), userId);
+        allow delete: if isOwner(userId) || isAdmin();
+      }
+
+      match /clients/{clientId} {
+        allow read: if isOwner(userId) || isAdmin();
+        allow create: if isOwner(userId) && isValidClient(incoming(), userId);
+        allow update: if isOwner(userId) && isValidClient(incoming(), userId);
+        allow delete: if isOwner(userId) || isAdmin();
+      }
+    }
+
+    match /logs/{logId} {
+      allow create: if isSignedIn() && isValidLog(incoming());
+      allow read: if isAdmin();
+    }
+  }
+}

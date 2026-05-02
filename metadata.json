@@ -1,0 +1,7 @@
+{
+  "name": "Lawyer Case Management",
+  "description": "A professional and user-friendly web application for lawyers to manage legal cases, track tasks, and view their agenda. Designed to be mobile-first and intuitive for daily use.",
+  "requestFramePermissions": [
+    "microphone"
+  ]
+}

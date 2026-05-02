@@ -1,0 +1,16 @@
+{
+  "name": "دفتر القضايا",
+  "short_name": "دفتر القضايا",
+  "description": "A professional and user-friendly web application for lawyers to manage legal cases, track tasks, and view their agenda. Designed to be mobile-first and intuitive for daily use.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#F5F5F5",
+  "theme_color": "#2F81F7",
+  "icons": [
+    {
+      "src": "vite.svg",
+      "sizes": "any",
+      "type": "image/svg+xml"
+    }
+  ]
+}

@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">دفتر القضايا</string>
+    <string name="title_activity_main">دفتر القضايا</string>
+    <string name="package_name">com.lawyer.casemanagementpro</string>
+    <string name="custom_url_scheme">com.lawyer.casemanagementpro</string>
+</resources>
