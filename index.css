@@ -4,35 +4,77 @@
 @theme {
   --color-primary: #2F81F7;
   --color-secondary: #43A047;
-  --color-light-bg: #F5F5F5;
+  --color-light-bg: #F8FAFC;
   --color-light-card: #FFFFFF;
-  --color-light-text: #212121;
-  --color-light-subtle: #757575;
-  --color-dark-bg: #1A202C;
-  --color-dark-card: #2D3748;
-  --color-dark-text: #E2E8F0;
+  --color-light-text: #334155;
+  --color-light-subtle: #64748B;
+  --color-dark-bg: #0F172A;
+  --color-dark-card: #1E293B;
+  --color-dark-text: #F1F5F9;
   --color-dark-subtle: #94A3B8;
-  --color-dark-border: #475569;
+  --color-dark-border: #334155;
 }
 
 body {
-  @apply bg-light-bg text-light-text dark:bg-dark-bg dark:text-dark-text transition-colors duration-200;
-  /* Prevent content from going under the status bar */
-  padding-top: env(safe-area-inset-top);
+  @apply bg-light-bg text-light-text dark:bg-dark-bg dark:text-dark-text transition-colors duration-300 antialiased;
+  /* Handle horizontal safe areas */
   padding-left: env(safe-area-inset-left);
   padding-right: env(safe-area-inset-right);
+  /* Prevent scroll bouncing visual artifacts */
+  overscroll-behavior-y: none;
 }
 
 /* Safe area utility classes for use in components */
+.safe-top {
+  /* Fallback spacing for Android devices or browsers without safe-area support */
+  padding-top: max(env(safe-area-inset-top), 16px);
+}
+
 .safe-bottom {
-  padding-bottom: env(safe-area-inset-bottom);
+  /* Prevent touching system navigation buttons */
+  padding-bottom: max(env(safe-area-inset-bottom), 16px);
 }
 
 .pb-safe {
   padding-bottom: max(1rem, env(safe-area-inset-bottom));
 }
 
-.mb-nav {
-  /* Height of bottom nav (4rem) + home indicator safe area */
-  margin-bottom: calc(4rem + env(safe-area-inset-bottom));
+.pb-nav {
+  /* Taller bottom nav height (about 4.5rem) + safe area padding + extra spacing */
+  padding-bottom: calc(5.5rem + max(env(safe-area-inset-bottom), 16px));
+}
+
+/* Antigravity Floating Action Button (FAB) */
+.fab {
+  position: fixed;
+  /* Positioned above the bottom nav (5.5rem) + 1.5rem (24px) breathing room = 7rem */
+  bottom: calc(7rem + max(env(safe-area-inset-bottom), 16px));
+  right: 1.5rem; /* Safe thumb distance */
+  z-index: 40;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  /* Premium double shadow for depth */
+  box-shadow: 0 10px 25px -5px rgba(47, 129, 247, 0.4), 0 8px 10px -6px rgba(47, 129, 247, 0.2);
+  animation: fab-appear 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+/* Dark mode specific shadow adjustment */
+.dark .fab {
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.6), 0 8px 10px -6px rgba(0, 0, 0, 0.4);
+}
+
+@keyframes fab-appear {
+  0% {
+    opacity: 0;
+    transform: translateY(20px) scale(0.9);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+html {
+  scroll-behavior: smooth;
 }

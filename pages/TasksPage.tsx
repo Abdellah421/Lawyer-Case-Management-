@@ -163,7 +163,7 @@ const TasksPage: React.FC<TasksPageProps> = ({ tasks, cases, onAddTask, onUpdate
         </div>
       )}
       
-      <button onClick={() => setIsModalOpen(true)} className="fixed bottom-20 right-4 bg-primary text-white rounded-full p-4 shadow-lg hover:bg-blue-600 transition-colors z-40">
+      <button onClick={() => setIsModalOpen(true)} className="fab bg-primary text-white rounded-full p-4 hover:bg-blue-600 hover:scale-105 active:scale-95 transition-all duration-300 focus:outline-none focus:ring-4 focus:ring-primary/30" aria-label="إضافة مهمة">
         <PlusIcon className="w-6 h-6" />
       </button>
 

@@ -2,6 +2,7 @@
 import React, { useState, useEffect, useCallback, useMemo, lazy, Suspense, useRef } from 'react';
 import { Toaster, toast } from 'react-hot-toast';
 import { App as CapacitorApp } from '@capacitor/app';
+import { StatusBar, Style } from '@capacitor/status-bar';
 
 import * as firestoreService from './services/firestoreService';
 import * as authService from './services/authService';
@@ -55,6 +56,26 @@ const App: React.FC = () => {
         } else {
             document.documentElement.classList.remove('dark');
         }
+
+        const configureStatusBar = async () => {
+            try {
+                // Disable overlay so the webview is pushed down by the status bar, preventing overlap
+                await StatusBar.setOverlaysWebView({ overlay: false });
+                
+                // Dynamically switch between light/dark content based on background
+                // On iOS this changes the text/icon color, on Android it might do the same if supported
+                await StatusBar.setStyle({ style: theme === 'dark' ? Style.Dark : Style.Light });
+                
+                // Set background color programmatically
+                // Using the updated hex codes from index.css for light/dark bg to ensure sync and premium feel
+                const color = theme === 'dark' ? '#0F172A' : '#F8FAFC';
+                await StatusBar.setBackgroundColor({ color });
+            } catch (err) {
+                console.log('StatusBar not available', err);
+            }
+        };
+        
+        configureStatusBar();
     }, [theme]);
 
     const toggleTheme = useCallback(() => {
@@ -353,7 +374,7 @@ const App: React.FC = () => {
                         className: 'dark:bg-dark-card dark:text-dark-text',
                     }}
                 />
-                <div className="pb-16 min-h-screen">
+                <div className="safe-top pb-nav min-h-screen flex flex-col w-full overflow-x-hidden">
                     <Suspense fallback={<LoadingSpinner />}>
                         {renderContent()}
                     </Suspense>
